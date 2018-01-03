@@ -14,10 +14,12 @@ namespace Web_Forum.Controllers
     public class UserController : Controller
     {
         private UserManager<ApplicationUser> userManager;
+        private SignInManager<ApplicationUser> signInManager;
 
-        public UserController(UserManager<ApplicationUser> userManager)
+        public UserController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
         {
             this.userManager = userManager;
+            this.signInManager = signInManager;
         }
         [HttpPost]
         async public Task<IActionResult> CreateUser(ApplicationUser newUser, string Password)
@@ -29,6 +31,24 @@ namespace Web_Forum.Controllers
             
             return Ok(NewUser);
 
+        }
+
+        [HttpPost, Route("/user/login")]
+        async public Task<IActionResult> SignIn(string email)
+        {
+            var userToSignIn = await userManager.FindByEmailAsync(email);
+
+            await signInManager.SignInAsync(userToSignIn, true);
+
+            return Ok(userToSignIn);
+        }
+
+        [HttpPost, Route("/user/logout")]
+        async public Task<IActionResult> SignOut()
+        {
+            await signInManager.SignOutAsync();
+
+            return Ok("");
         }
     }
 }
