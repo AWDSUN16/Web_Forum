@@ -11,6 +11,7 @@ namespace Web_Forum.Entities
 
     public class Web_ForumDbContext : IdentityDbContext<ApplicationUser>
     {
+        public DbSet<Post> Posts { get; set; }
         public Web_ForumDbContext(DbContextOptions<Web_ForumDbContext> options)
             : base(options)
         {

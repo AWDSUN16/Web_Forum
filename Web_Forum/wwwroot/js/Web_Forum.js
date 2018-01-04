@@ -72,3 +72,30 @@ $("#userLogOut button").click(function () {
         })
 
 });
+
+$("#createPostForm button").click(function () {
+
+    $.ajax({
+        url: '/user/post',
+        method: 'POST',
+        data: {
+            "Content": $("#createPostForm [name=CreatePost]").val()
+          
+        }
+
+    })
+        .done(function (result) {
+            alert("Du har skapat användaren ");
+
+            console.log("Success!", result)
+
+        })
+
+        .fail(function (xhr, status, error) {
+
+            alert("fail");
+            console.log("Error", xhr, status, error);
+
+        })
+
+});

@@ -15,9 +15,10 @@ namespace Web_Forum.Controllers
     {
         private UserManager<ApplicationUser> userManager;
         private SignInManager<ApplicationUser> signInManager;
-
-        public UserController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        private Web_ForumDbContext web_ForumDbContext;
+        public UserController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, Web_ForumDbContext web_ForumDbContext)
         {
+            this.web_ForumDbContext = web_ForumDbContext;
             this.userManager = userManager;
             this.signInManager = signInManager;
         }
@@ -26,9 +27,9 @@ namespace Web_Forum.Controllers
         {
             ApplicationUser NewUser = new ApplicationUser { UserName = newUser.UserName, Email = newUser.Email };
             //NewUser.PasswordHash = userManager.PasswordHasher.HashPassword(newUser.PasswordHash);
-            var result= await userManager.CreateAsync(NewUser, Password);
-           
-            
+            var result = await userManager.CreateAsync(NewUser, Password);
+
+
             return Ok(NewUser);
 
         }
@@ -49,6 +50,24 @@ namespace Web_Forum.Controllers
             await signInManager.SignOutAsync();
 
             return Ok("");
+        }
+
+
+
+        [HttpPost, Route("/user/post")]
+        async public Task<IActionResult> SavePostToDatabase(Post UserCreatedPost)
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+
+                web_ForumDbContext.Add(UserCreatedPost);
+            }
+            else
+            {
+                return Ok("fail");
+            }
+            await web_ForumDbContext.SaveChangesAsync();
+            return Ok();
         }
     }
 }
