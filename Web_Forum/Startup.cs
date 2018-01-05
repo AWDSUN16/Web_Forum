@@ -28,8 +28,7 @@ namespace Web_Forum
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie();
+
 
             services.AddDbContext<Web_ForumDbContext>(options =>
                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
@@ -39,6 +38,10 @@ namespace Web_Forum
                 .AddDefaultTokenProviders();
 
             services.AddMvc();
+
+            services.AddSession(); //<<<Dessa filer gör att autthentication fungerar//
+                                   /* services.AddMemoryCache();*/ //<<<Denna får vara bort kommenterad så länge//
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -48,6 +51,9 @@ namespace Web_Forum
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseSession(); //<<<Dessa filer gör att autthentication fungerar//
+            app.UseAuthentication();  //<<<Dessa filer gör att autthentication fungerar//
 
             app.UseStaticFiles();
             app.UseStatusCodePages();

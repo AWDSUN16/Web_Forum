@@ -37,37 +37,64 @@ namespace Web_Forum.Controllers
         [HttpPost, Route("/user/login")]
         async public Task<IActionResult> SignIn(string email)
         {
-            var userToSignIn = await userManager.FindByEmailAsync(email);
+            if (!User.Identity.IsAuthenticated)
+            {
+                var userToSignIn = await userManager.FindByEmailAsync(email);
 
-            await signInManager.SignInAsync(userToSignIn, true);
+                await signInManager.SignInAsync(userToSignIn, true);
 
-            return Ok(userToSignIn);
+                return Ok(userToSignIn);
+            }
+            else
+            {
+                return BadRequest();
+            }
         }
 
         [HttpPost, Route("/user/logout")]
         async public Task<IActionResult> SignOut()
         {
-            await signInManager.SignOutAsync();
+            if (User.Identity.IsAuthenticated)
+            {
+                await signInManager.SignOutAsync();
+                return Ok(User.Identity.Name);
+            }
+            else
+            {
+                return BadRequest();
+            }
 
-            return Ok("");
         }
-
-
 
         [HttpPost, Route("/user/post")]
         async public Task<IActionResult> SavePostToDatabase(Post UserCreatedPost)
         {
             if (User.Identity.IsAuthenticated)
             {
-
+                UserCreatedPost.CreatedBy=User.Identity.Name;
+                UserCreatedPost.DateOfCreation = DateTime.Now.ToString();
                 web_ForumDbContext.Add(UserCreatedPost);
+                await web_ForumDbContext.SaveChangesAsync();
+                return Ok(User.Identity.Name);
             }
             else
             {
-                return Ok("fail");
+                return BadRequest();
             }
-            await web_ForumDbContext.SaveChangesAsync();
-            return Ok();
+
+
+        }
+
+        [HttpGet, Route("/user/showallposts")]
+         public IActionResult ShowAllPosts()
+        {
+            //List<Post> myList = new List<Post>();
+            //foreach (var post in web_ForumDbContext.Posts)
+            //{
+            //    myList.Add(post);
+
+            //}
+            return Ok(web_ForumDbContext.Posts);
         }
     }
 }
