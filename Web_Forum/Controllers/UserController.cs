@@ -96,5 +96,20 @@ namespace Web_Forum.Controllers
             //}
             return Ok(web_ForumDbContext.Posts);
         }
+
+        [HttpGet, Route("/user/checkIfUserIsAuthenticated")]
+        public IActionResult CheckIfUserIsAuthenticated()
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                var user = userManager.GetUserAsync(User);
+
+                return Ok(User.Identity.Name);
+            }
+            else
+            {
+                return Ok("Logga in");
+            }
+        }
     }
 }
