@@ -11,9 +11,10 @@ using Web_Forum.Entities;
 namespace Web_Forum.Migrations
 {
     [DbContext(typeof(Web_ForumDbContext))]
-    partial class Web_ForumDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180108125330_Added_User_To_Post")]
+    partial class Added_User_To_Post
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

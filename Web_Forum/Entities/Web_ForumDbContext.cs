@@ -20,6 +20,11 @@ namespace Web_Forum.Entities
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            builder.Entity<Post>()
+                .HasOne(p => p.Poster)
+                .WithMany(u => u.Posts)
+                .HasForeignKey(p => p.PosterId);
         }
     }
 }

@@ -67,15 +67,22 @@ namespace Web_Forum.Controllers
         }
 
         [HttpPost, Route("/user/post")]
-        async public Task<IActionResult> SavePostToDatabase(Post UserCreatedPost)
+        async public Task<IActionResult> SavePostToDatabase( Post UserCreatedPost)
         {
             if (User.Identity.IsAuthenticated)
             {
-                UserCreatedPost.CreatedBy=User.Identity.Name;
-                UserCreatedPost.DateOfCreation = DateTime.Now.ToString();
+                var user = await userManager.GetUserAsync(User);
+                UserCreatedPost.Poster = user;
+                UserCreatedPost.PosterId = user.Id;
+                UserCreatedPost.DateOfCreation = DateTime.Now;
+
                 web_ForumDbContext.Add(UserCreatedPost);
+
                 await web_ForumDbContext.SaveChangesAsync();
-                return Ok(User.Identity.Name);
+
+                user.Posts.Add(UserCreatedPost);
+
+                return Ok("Hej");
             }
             else
             {
@@ -111,5 +118,37 @@ namespace Web_Forum.Controllers
                 return Ok("Logga in");
             }
         }
+
+        //[HttpPost, Route("/user/post")]
+        //async public Task<IActionResult> SavePostToDatabase([FromBody] Post UserCreatedPost)
+        //{
+        //    if (User.Identity.IsAuthenticated)
+        //    {
+        //        var result = await DoSomething(UserCreatedPost);
+        //        return Ok(result);
+        //    }
+        //    else
+        //    {
+        //        return BadRequest();
+        //    }
+
+
+        //}
+
+        //async private Task<IActionResult> DoSomething(Post UserCreatedPost)
+        //{
+        //    var user = await userManager.GetUserAsync(User);
+        //    UserCreatedPost.Poster = user;
+        //    UserCreatedPost.PosterId = user.Id;
+        //    UserCreatedPost.DateOfCreation = DateTime.Now;
+
+        //    web_ForumDbContext.Add(UserCreatedPost);
+
+        //    await web_ForumDbContext.SaveChangesAsync();
+
+        //    user.Posts.Add(UserCreatedPost);
+
+        //    return Json(UserCreatedPost);
+        //}
     }
 }

@@ -8,5 +8,6 @@ namespace Web_Forum.Entities
 {
     public class ApplicationUser : IdentityUser
     {
+        public List<Post> Posts { get; set; }
     }
 }

@@ -112,7 +112,7 @@ $("#createPostForm button").click(function () {
 
     })
         .done(function (result) {
-            alert("Användaren " + result + " har skapat ett inlägg");
+            alert("Användaren har skapat ett inlägg");
 
             console.log("Success!", result)
 
@@ -140,7 +140,7 @@ $("#showTestPostsButton button").click(function () {
         .done(function (result) {
             var list = ''
             for (i = 0; i < result.length; i++) {
-                list += "<p style='border:3px; border-style:solid; border-color:#FF0000; padding:1em;' > " + result[i].content + " Skapad av: " + result[i].createdBy + " Klockan " + result[i].dateOfCreation +"<p>"+'<br>';
+                list += "<p style='border:3px; border-style:solid; border-color:#FF0000; padding:1em;' > " + result[i].content + " Skapad av: " + result[i].poster + " Klockan " + result[i].dateOfCreation +"<p>"+'<br>';
             };
             $('#showTestPosts').html(list);
 
