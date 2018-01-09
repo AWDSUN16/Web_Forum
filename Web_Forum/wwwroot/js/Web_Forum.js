@@ -128,3 +128,33 @@ $("#showTestPostsButton button").click(function () {
         })
 
 });
+
+$(window.onload) = function () {
+
+    $.ajax({
+        url: '/user/showallposts',
+        method: 'GET',
+        data: {
+
+        }
+
+    })
+        .done(function (result) {
+            var list = ''
+            for (i = 0; i < result.length; i++) {
+                list += "<p style='border:3px; border-style:solid; border-color:#FF0000; padding:1em;' > " + result[i].content + " Skapad av: " + result[i].createdBy + " Klockan " + result[i].dateOfCreation + "<p>" + '<br>';
+            };
+            $('#showTestPosts').html(list);
+
+            console.log("Success!", result)
+
+        })
+
+        .fail(function (xhr, status, error) {
+
+            alert("fail");
+            console.log("Error", xhr, status, error);
+
+        })
+
+});
