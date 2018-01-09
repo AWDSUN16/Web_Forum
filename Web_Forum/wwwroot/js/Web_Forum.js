@@ -1,7 +1,7 @@
 ﻿$(document).ready(function () {
     updateNavBar();
 });
-
+//test
 function updateNavBar()
 {
     $.ajax({
