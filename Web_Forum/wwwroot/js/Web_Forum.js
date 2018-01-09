@@ -1,4 +1,30 @@
-﻿$("#createUserForm button").click(function () {
+﻿$(document).ready(function () {
+    updateNavBar();
+});
+
+function updateNavBar()
+{
+    $.ajax({
+        url: '/user/checkIfUserIsAuthenticated',
+        method: 'GET'
+    })
+        .done(function (result) {
+            $("#Navbar ul").empty();
+            $("#Navbar ul").append('<li style="float: left"><a style="display: block; color: white; padding: 14px 16px" href="/">Web_Forum</a></li>');
+            $("#Navbar ul").append('<li style="float: left"><a style="display: block; color: white; padding: 14px 16px" href="/">Hem</a></li>');
+            $("#Navbar ul").append('<li style="float: left"><a style="display: block; color: white; padding: 14px 16px" href="/">' + result + '</a></li>');
+        })
+
+        .fail(function (xhr, status, error) {
+
+            alert("fail");
+            console.log("Error", xhr, status, error);
+
+        });
+
+}
+
+$("#createUserForm button").click(function () {
 
     $.ajax({
         url: '/user/',
@@ -37,6 +63,7 @@ $("#userLoginForm button").click(function () {
 
     })
         .done(function (result) {
+            updateNavBar();
             alert("Användare " + result.userName + " har loggats in!");
 
             console.log("Success!", result)
@@ -59,6 +86,7 @@ $("#userLogOut button").click(function () {
         method: 'POST'
     })
         .done(function (result) {
+            updateNavBar();
             alert("Användare " + result + " Har loggats ut");
             console.log("Success!")
 
