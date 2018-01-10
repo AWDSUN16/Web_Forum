@@ -12,7 +12,7 @@ function updateNavBar()
             $("#Navbar ul").empty();
             $("#Navbar ul").append('<li style="float: left"><a style="display: block; color: white; padding: 14px 16px" href="/">Web_Forum</a></li>');
             $("#Navbar ul").append('<li style="float: left"><a style="display: block; color: white; padding: 14px 16px" href="/">Hem</a></li>');
-            $("#Navbar ul").append('<li style="float: left"><a style="display: block; color: white; padding: 14px 16px" href="/">' + result + '</a></li>');
+            $("#Navbar ul").append('<li style="float: left"><a style="display: block; color: white; padding: 14px 16px"><div id="showTestPostsButton"><button> Visa alla inlägg</button></div></a></li>');
         })
 
         .fail(function (xhr, status, error) {
@@ -145,6 +145,61 @@ $("#showTestPostsButton button").click(function () {
             $('#showTestPosts').html(list);
 
             console.log("Success!", result)
+
+        })
+
+        .fail(function (xhr, status, error) {
+
+            alert("fail");
+            console.log("Error", xhr, status, error);
+
+        })
+
+});
+
+
+$("#adminCreate button").click(function () {
+
+    $.ajax({
+        url: '/user/createadmin',
+        method: 'POST',
+        data: {
+            
+
+        }
+
+    })
+        .done(function () {
+
+            alert("du har skapat en admin")
+            console.log("Success!")
+
+        })
+
+        .fail(function (xhr, status, error) {
+
+            alert("fail");
+            console.log("Error", xhr, status, error);
+
+        })
+
+});
+
+$("#testAdmin  button").click(function () {
+
+    $.ajax({
+        url: '/user/test',
+        method: 'POST',
+        data: {
+
+
+        }
+
+    })
+        .done(function () {
+
+            alert("success")
+            console.log("Success!")
 
         })
 

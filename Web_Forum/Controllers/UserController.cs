@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Web_Forum.Entities;
+using Microsoft.AspNetCore.Authorization;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -111,5 +112,22 @@ namespace Web_Forum.Controllers
                 return Ok("Logga in");
             }
         }
+
+        [HttpPost, Route("/user/createadmin")]
+       async public Task <IActionResult> CreateAdmin()
+        {
+            ApplicationUser admin = new ApplicationUser { UserName = "admin", Email = "admin@admin.com"};
+            await userManager.CreateAsync(admin,"123456aA!");
+            await userManager.AddClaimAsync(admin, new System.Security.Claims.Claim("role", "administrator"));
+            return Ok();
+        }
+        [Authorize(Policy = "AdminRights")]
+        [HttpPost, Route("/user/test")]
+        public IActionResult Test()
+        {
+        
+            return Ok();
+        }
+
     }
 }
