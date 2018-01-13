@@ -309,8 +309,9 @@ $(document).on("click", "a.threadLink", function () {
         }
     })
         .done(function (result) {
+            var threadId = result.id;
             buildThreadDataTable(result);
-            fillTableWithThreadPosts(result);
+            fillTableWithThreadPosts(threadId);
             buildThreadPostForm(result);
 
             console.log(result);
@@ -332,9 +333,8 @@ function buildThreadDataTable(result) {
     $("#threadDataDiv").append(html);
 }
 
-function fillTableWithThreadPosts(result) {
-
-    var id = result.id;
+function fillTableWithThreadPosts(id) {
+    $("#threadDataDiv tr").empty();
     console.log(id);
 
     $.ajax({
@@ -391,13 +391,16 @@ $(document).on("click", "button.sendThreadForm", function () {
     $.ajax({
         url: '/contents/threads/' + id + '/posts',
         method: 'POST',
-        dataType: {
-            "id": id
+        data: {
+            "id": id,
+            "Content" : $('#threadPostForm [name=CreatePostContent]').val()
         }
     })
         .done(function (result) {
-            alert(result);
+            console.log(result);
 
+            var threadId = result.threadId;
+            fillTableWithThreadPosts(threadId);
         })
 
         .fail(function (xhr, status, error) {
