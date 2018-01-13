@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Web_Forum.Entities;
+using Microsoft.AspNetCore.Authorization;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -71,7 +72,7 @@ namespace Web_Forum.Controllers
         {
             if (User.Identity.IsAuthenticated)
             {
-                UserCreatedPost.CreatedBy=User.Identity.Name;
+                UserCreatedPost.CreatedBy = User.Identity.Name;
                 UserCreatedPost.DateOfCreation = DateTime.Now.ToString();
                 web_ForumDbContext.Add(UserCreatedPost);
                 await web_ForumDbContext.SaveChangesAsync();
@@ -86,7 +87,7 @@ namespace Web_Forum.Controllers
         }
 
         [HttpGet, Route("/user/showallposts")]
-         public IActionResult ShowAllPosts()
+        public IActionResult ShowAllPosts()
         {
             //List<Post> myList = new List<Post>();
             //foreach (var post in web_ForumDbContext.Posts)
@@ -100,16 +101,70 @@ namespace Web_Forum.Controllers
         [HttpGet, Route("/user/checkIfUserIsAuthenticated")]
         public IActionResult CheckIfUserIsAuthenticated()
         {
-            if (User.Identity.IsAuthenticated)
+
+
+            if (User.Identity.IsAuthenticated && User.HasClaim("role", "administrator"))
             {
+
+
                 var user = userManager.GetUserAsync(User);
 
+               
+                return Ok(User.Identity.Name);
+            }
+            else if (User.Identity.IsAuthenticated)
+            {
+
+                var user = userManager.GetUserAsync(User);
                 return Ok(User.Identity.Name);
             }
             else
             {
-                return Ok("Logga in");
+                return Ok("Ej inloggad");
             }
+        }
+
+        [HttpPost, Route("/user/createadmin")]
+        async public Task<IActionResult> CreateAdmin()
+        {
+            ApplicationUser admin = new ApplicationUser { UserName = "admin", Email = "admin@admin.com" };
+            await userManager.CreateAsync(admin, "123456aA!");
+            await userManager.AddClaimAsync(admin, new System.Security.Claims.Claim("role", "administrator"));
+            return Ok();
+        }
+        [Authorize(Policy = "AdminRights")]
+        [HttpPost, Route("/user/test")]
+        public IActionResult Test()
+        {
+
+            return Ok();
+        }
+
+        [HttpGet, Route("/user/showalluseradminspecific")]
+        public IActionResult Showalluseradminspecific()
+        {
+          
+            return Ok(web_ForumDbContext.Users);
+        }
+
+
+        [HttpDelete, Route("/user/delete")]
+        public IActionResult Delete(string clickedId, string name)
+        {
+           
+            foreach (ApplicationUser user in web_ForumDbContext.Users)
+            {
+                if (user.Id == clickedId)
+                {
+                     name = user.UserName;
+                    web_ForumDbContext.Remove(user);
+                }
+
+            }
+            
+            web_ForumDbContext.SaveChanges();
+
+            return Ok("Användare: " +name+ " borttagen");
         }
     }
 }
