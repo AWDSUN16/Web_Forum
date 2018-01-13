@@ -1,19 +1,17 @@
 ﻿$(document).ready(function () {
     updateNavBar();
-    updateThreadDiv();
 });
 //test
-function updateNavBar()
-{
+function updateNavBar() {
     $.ajax({
         url: '/user/checkIfUserIsAuthenticated',
         method: 'GET'
     })
         .done(function (result) {
-            $("#Navbar ul").empty();
-            $("#Navbar ul").append('<li style="float: left"><a style="display: block; color: white; padding: 14px 16px" href="/">Web_Forum</a></li>');
-            $("#Navbar ul").append('<li style="float: left"><a style="display: block; color: white; padding: 14px 16px" href="/">Hem</a></li>');
-            $("#Navbar ul").append('<li style="float: left"><a style="display: block; color: white; padding: 14px 16px" href="/">' + result + '</a></li>');
+            { $("#userNameGoesHere").html("<span>"+result+"</span>"); }
+            if (result == "admin")
+            { $("#adminButton").show();}
+           
         })
 
         .fail(function (xhr, status, error) {
@@ -108,6 +106,7 @@ $("#createPostForm button").click(function () {
         method: 'POST',
         data: {
             "Content": $("#createPostForm [name=CreatePost]").val()
+
         }
 
     })
@@ -133,14 +132,14 @@ $("#showTestPostsButton button").click(function () {
         url: '/user/showallposts',
         method: 'GET',
         data: {
-            
+
         }
 
     })
         .done(function (result) {
             var list = ''
             for (i = 0; i < result.length; i++) {
-                list += "<p style='border:3px; border-style:solid; border-color:#FF0000; padding:1em;' > " + result[i].content + " Skapad av: " + result[i].createdBy + " Klockan " + result[i].dateOfCreation +"<p>"+'<br>';
+                list += "<p style='border:3px; border-style:solid; border-color:#FF0000; padding:1em;' > " + result[i].content + " Skapad av: " + result[i].createdBy + " Klockan " + result[i].dateOfCreation + "<p>" + '<br>';
             };
             $('#showTestPosts').html(list);
 
@@ -157,140 +156,83 @@ $("#showTestPostsButton button").click(function () {
 
 });
 
-$("#createThreadAndPostForm button").click(function () {
+
+$("#adminCreate button").click(function () {
 
     $.ajax({
-        url: '/contents/',
+        url: '/user/createadmin',
         method: 'POST',
         data: {
-            "Title": $("#createThreadAndPostForm [name=CreateThreadTitle]").val(),
-            "Content": $("#createThreadAndPostForm [name=CreatePostContent]").val()
+
+
         }
+
     })
-        .done(function (result) {
-            updateThreadDiv();
-            console.log(result);
+        .done(function () {
+
+            alert("du har skapat en admin")
+            console.log("Success!")
+
         })
 
         .fail(function (xhr, status, error) {
-            alert("fail!");
-            console.log("Error", xhr, status, error)
-        });
-});
 
-function updateThreadDiv() {
+            alert("fail");
+            console.log("Error", xhr, status, error);
 
-    $.ajax({
-        url: '/contents/getAllThreads',
-        method: 'GET'
-    })
-        .done(function (result) {
-
-            var threads = fillTableWithThreads(result);
-            $("#threadDiv tbody").empty();
-            $("#threadDiv tbody").append(threads);
-
-            console.log(result);
         })
-
-        .fail(function (xhr, status, error) {
-            alert("fail!");
-            console.log("Error", xhr, status, error)
-        });
-
-}
-
-function fillTableWithThreads(result) {
-
-    var html = "";
-
-    $.each(result, function (key, thread) {
-        html += '<tr>';
-        html += '<td style="border: 1px solid black;">' + '<a href="#threadDataDiv" class="threadLink" thread-id="' + thread.id + '">' + thread.title + '</a>' + '</td>';
-        html += '<td style="border: 1px solid black;">' + thread.dateOfCreation + '</td>';
-        html += '<td style="border: 1px solid black;">' + thread.amountOfReplies + '</td>';
-        html += '<td style="border: 1px solid black;">' + thread.amountOfViews + '</td>';
-        html += '</tr>';
-    });
-
-    return html;
-}
-
-$(document).on("click", "a.threadLink", function () {
-
-    var id = $(this).attr("thread-id");
-
-    $.ajax({
-        url: '/contents/threads/',
-        method: 'GET',
-        data: {
-            "id" : id
-        }
-    })
-        .done(function (result) {
-            buildThreadDataTable(result);
-            fillTableWithThreadPosts(result);
-
-            console.log(result);
-        })
-
-        .fail(function (xhr, status, error) {
-            alert("fail!");
-            console.log("Error", xhr, status, error)
-        });
 
 });
 
-function buildThreadDataTable(result)
-{
-    emptythreadDataDiv();
 
-    var html = '<a href="/index.html">' + 'Tillbaka' + '</a>' + ' > ' + result.title;
-    html += '<h1>' + result.title + '</h1>';
-
-    $("#threadDataDiv").append(html);
-}
-
-function fillTableWithThreadPosts(result) {
-
-    var id = result.id;
-    console.log(id);
+$("#showUsernameWhenSingedIn  button").click(function () {
 
     $.ajax({
-        url: '/contents/threads/' + id + '/posts',
+        url: '/user/showalluseradminspecific',
         method: 'GET',
         data: {
-            "id": id
+
+
         }
+
     })
         .done(function (result) {
+            var list = ''
+            for (i = 0; i < result.length; i++) {
+                list += "Användarnamn: " + result[i].userName+" Email: "+ result[i].email + "<button class='deleteButton' data-id='" + result[i].id + "'>ta bort</button>"+"<br>";
+            };
+            $('#showTestPosts').html(list);
+            
+            console.log(status);
+        })
+        .fail(function (xhr, status, error) {
+            alert("fail");
+            console.log("Error", xhr, status, error);
+        })
+});
 
-            var html = "";
+$("body").on("click", ".deleteButton", function () {
 
-            $.each(result, function (key, post) {
-                html += '<tr>';
-                html += '<td style="border: 1px solid black;">' + post.createdBy + '</td>';
-                html += '<td style="border: 1px solid black;">' + post.dateOfCreation + '</td>';
-                html += '<td style="border: 1px solid black;">' + post.content + '</td>';
-                html += '<td><button class="deletePostButton_' +post.id + '">Delete</button></td>';
-                html += '<td><button class="editPostButton_' + post.id + '">Edit</button></td>';
-                html += '</tr>';
-            });
+    let clickedId = $(this).data("id")
+    console.log(clickedId)
+    $.ajax({
+        url: '/user/delete',
+        method: 'DELETE',
+        data: {
+            clickedId
+        }
 
-            $("#threadDataDiv").append(html);
+    })
+        .done(function (result) {
+            alert(result)
+            console.log(status);
 
-            console.log(result);
         })
 
         .fail(function (xhr, status, error) {
-            alert("fail!");
 
-            console.log("Error", xhr, status, error)
-        });
-    
-}
+            alert(`Fail!`)
+            console.log("Error", xhr, status, error);
 
-function emptythreadDataDiv()
-{
-    $("#threadDataDiv").empty();
-}
+        })
+});

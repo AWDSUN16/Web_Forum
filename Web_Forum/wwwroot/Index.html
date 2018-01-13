@@ -5,14 +5,23 @@
     <title>Web Forum</title>
 </head>
 <body>
-   
-    <h1>Välkommen till webforum</h1>
+
+    <!--<h1>Välkommen till webforum</h1>
     <navbar id="Navbar">
-        <ul style="list-style-type: none; margin: 0; padding: 0; overflow: hidden; background-color: #333;">
-            <li style="float: left"><a style="display: block; color: white; padding: 14px 16px" href="/">Web_Forum</a></li>
-            <li style="float: left"><a style="display: block; color: white; padding: 14px 16px" href="/">Hem</a></li>
-        </ul>
-    </navbar>
+        <ul style="list-style-type: none; margin: 0; padding: 0; overflow: hidden; background-color: #333;"></ul>
+    </navbar>-->
+    <nav class="navbar navbar-light bg-light">
+        <span class="navbar-brand mb-0 h1">Välkommen till webforum</span>
+        <form class="form-inline">
+            <div id="userNameGoesHere"></div>
+            <div id='showUsernameWhenSingedIn'> <button type='button' id="adminButton" class='btn btn-primary' style="display:none;">visa alla användare</button> </div>
+            <!--<button type="button" class="btn btn-primary">2</button>
+            <button type="button" class="btn btn-primary">3</button>
+            <button type="button" class="btn btn-primary">4</button>-->
+        </form>
+
+    </nav>
+
 
 
     <div id="createUserForm">
@@ -21,6 +30,7 @@
         <input type="text" name="CreateUserPassword" placeholder="Choose password" />
         <button>Skapa</button>
     </div>
+
 
 
 
@@ -36,38 +46,17 @@
         <input type="text" name="CreatePost" placeholder="skriv något" />
         <button>Skapa inlägg</button>
     </div>
-    <div id="showTestPostsButton">
-        <button>Visa alla inlägg</button>
+
+    <div id="adminCreate">
+
+        <button>Skapa Admin</button>
     </div>
+
     <div id="showTestPosts"></div>
 
-    <div id="createThreadAndPostForm">
-        <input type="text" name="CreateThreadTitle" placeholder="Skriv en titel..." />
-        <br />
-        <textarea name="CreatePostContent" placeholder="Skriv ett inlägg..."></textarea>
-        <button>Skapa en ny tråd</button>
-    </div>
-
-    <div id="threadDiv">
-        <table style="border: 1px solid black; border-collapse: collapse">
-            <thead style="border: 1px solid black;">
-                <tr>
-                    <td style="border: 1px solid black;">Title</td>
-                    <td style="border: 1px solid black;">Latest Thread</td>
-                    <td style="border: 1px solid black;">Replies</td>
-                    <td style="border: 1px solid black;">Views</td>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-    </div>
-
-    <div id="threadDataDiv">
-    </div>
-
-        <script src="js/jquery-3.2.1.min.js"></script>
-        <script src="js/Web_Forum.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy" crossorigin="anonymous">
+    <script src="js/jquery-3.2.1.min.js"></script>
+    <script src="js/Web_Forum.js"></script>
 
 </body>
 </html>
