@@ -41,6 +41,30 @@
     </div>
     <div id="showTestPosts"></div>
 
+    <div id="createThreadAndPostForm">
+        <input type="text" name="CreateThreadTitle" placeholder="Skriv en titel..." />
+        <br />
+        <textarea name="CreatePostContent" placeholder="Skriv ett inlägg..."></textarea>
+        <button>Skapa en ny tråd</button>
+    </div>
+
+    <div id="threadDiv">
+        <table style="border: 1px solid black; border-collapse: collapse">
+            <thead style="border: 1px solid black;">
+                <tr>
+                    <td style="border: 1px solid black;">Title</td>
+                    <td style="border: 1px solid black;">Latest Thread</td>
+                    <td style="border: 1px solid black;">Replies</td>
+                    <td style="border: 1px solid black;">Views</td>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="threadDataDiv">
+    </div>
 
         <script src="js/jquery-3.2.1.min.js"></script>
         <script src="js/Web_Forum.js"></script>

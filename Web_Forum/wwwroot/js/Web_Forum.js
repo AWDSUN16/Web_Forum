@@ -1,5 +1,6 @@
 ﻿$(document).ready(function () {
     updateNavBar();
+    updateThreadDiv();
 });
 //test
 function updateNavBar()
@@ -107,7 +108,6 @@ $("#createPostForm button").click(function () {
         method: 'POST',
         data: {
             "Content": $("#createPostForm [name=CreatePost]").val()
-
         }
 
     })
@@ -156,3 +156,141 @@ $("#showTestPostsButton button").click(function () {
         })
 
 });
+
+$("#createThreadAndPostForm button").click(function () {
+
+    $.ajax({
+        url: '/contents/',
+        method: 'POST',
+        data: {
+            "Title": $("#createThreadAndPostForm [name=CreateThreadTitle]").val(),
+            "Content": $("#createThreadAndPostForm [name=CreatePostContent]").val()
+        }
+    })
+        .done(function (result) {
+            updateThreadDiv();
+            console.log(result);
+        })
+
+        .fail(function (xhr, status, error) {
+            alert("fail!");
+            console.log("Error", xhr, status, error)
+        });
+});
+
+function updateThreadDiv() {
+
+    $.ajax({
+        url: '/contents/getAllThreads',
+        method: 'GET'
+    })
+        .done(function (result) {
+
+            var threads = fillTableWithThreads(result);
+            $("#threadDiv tbody").empty();
+            $("#threadDiv tbody").append(threads);
+
+            console.log(result);
+        })
+
+        .fail(function (xhr, status, error) {
+            alert("fail!");
+            console.log("Error", xhr, status, error)
+        });
+
+}
+
+function fillTableWithThreads(result) {
+
+    var html = "";
+
+    $.each(result, function (key, thread) {
+        html += '<tr>';
+        html += '<td style="border: 1px solid black;">' + '<a href="#threadDataDiv" class="threadLink" thread-id="' + thread.id + '">' + thread.title + '</a>' + '</td>';
+        html += '<td style="border: 1px solid black;">' + thread.dateOfCreation + '</td>';
+        html += '<td style="border: 1px solid black;">' + thread.amountOfReplies + '</td>';
+        html += '<td style="border: 1px solid black;">' + thread.amountOfViews + '</td>';
+        html += '</tr>';
+    });
+
+    return html;
+}
+
+$(document).on("click", "a.threadLink", function () {
+
+    var id = $(this).attr("thread-id");
+
+    $.ajax({
+        url: '/contents/threads/',
+        method: 'GET',
+        data: {
+            "id" : id
+        }
+    })
+        .done(function (result) {
+            buildThreadDataTable(result);
+            fillTableWithThreadPosts(result);
+
+            console.log(result);
+        })
+
+        .fail(function (xhr, status, error) {
+            alert("fail!");
+            console.log("Error", xhr, status, error)
+        });
+
+});
+
+function buildThreadDataTable(result)
+{
+    emptythreadDataDiv();
+
+    var html = '<a href="/index.html">' + 'Tillbaka' + '</a>' + ' > ' + result.title;
+    html += '<h1>' + result.title + '</h1>';
+
+    $("#threadDataDiv").append(html);
+}
+
+function fillTableWithThreadPosts(result) {
+
+    var id = result.id;
+    console.log(id);
+
+    $.ajax({
+        url: '/contents/threads/' + id + '/posts',
+        method: 'GET',
+        data: {
+            "id": id
+        }
+    })
+        .done(function (result) {
+
+            var html = "";
+
+            $.each(result, function (key, post) {
+                html += '<tr>';
+                html += '<td style="border: 1px solid black;">' + post.createdBy + '</td>';
+                html += '<td style="border: 1px solid black;">' + post.dateOfCreation + '</td>';
+                html += '<td style="border: 1px solid black;">' + post.content + '</td>';
+                html += '<td><button class="deletePostButton_' +post.id + '">Delete</button></td>';
+                html += '<td><button class="editPostButton_' + post.id + '">Edit</button></td>';
+                html += '</tr>';
+            });
+
+            $("#threadDataDiv").append(html);
+
+            console.log(result);
+        })
+
+        .fail(function (xhr, status, error) {
+            alert("fail!");
+
+            console.log("Error", xhr, status, error)
+        });
+    
+}
+
+function emptythreadDataDiv()
+{
+    $("#threadDataDiv").empty();
+}
