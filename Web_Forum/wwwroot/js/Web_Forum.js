@@ -2,17 +2,16 @@
     updateNavBar();
 });
 //test
-function updateNavBar()
-{
+function updateNavBar() {
     $.ajax({
         url: '/user/checkIfUserIsAuthenticated',
         method: 'GET'
     })
         .done(function (result) {
-            $("#Navbar ul").empty();
-            $("#Navbar ul").append('<li style="float: left"><a style="display: block; color: white; padding: 14px 16px" href="/">Web_Forum</a></li>');
-            $("#Navbar ul").append('<li style="float: left"><a style="display: block; color: white; padding: 14px 16px" href="/">Hem</a></li>');
-            $("#Navbar ul").append('<li style="float: left"><a style="display: block; color: white; padding: 14px 16px"><div id="showTestPostsButton"><button> Visa alla inlägg</button></div></a></li>');
+            { $("#userNameGoesHere").html("<span>"+result+"</span>"); }
+            if (result == "admin")
+            { $("#adminButton").show();}
+           
         })
 
         .fail(function (xhr, status, error) {
@@ -133,14 +132,14 @@ $("#showTestPostsButton button").click(function () {
         url: '/user/showallposts',
         method: 'GET',
         data: {
-            
+
         }
 
     })
         .done(function (result) {
             var list = ''
             for (i = 0; i < result.length; i++) {
-                list += "<p style='border:3px; border-style:solid; border-color:#FF0000; padding:1em;' > " + result[i].content + " Skapad av: " + result[i].createdBy + " Klockan " + result[i].dateOfCreation +"<p>"+'<br>';
+                list += "<p style='border:3px; border-style:solid; border-color:#FF0000; padding:1em;' > " + result[i].content + " Skapad av: " + result[i].createdBy + " Klockan " + result[i].dateOfCreation + "<p>" + '<br>';
             };
             $('#showTestPosts').html(list);
 
@@ -164,7 +163,7 @@ $("#adminCreate button").click(function () {
         url: '/user/createadmin',
         method: 'POST',
         data: {
-            
+
 
         }
 
@@ -185,29 +184,55 @@ $("#adminCreate button").click(function () {
 
 });
 
-$("#testAdmin  button").click(function () {
+
+$("#showUsernameWhenSingedIn  button").click(function () {
 
     $.ajax({
-        url: '/user/test',
-        method: 'POST',
+        url: '/user/showalluseradminspecific',
+        method: 'GET',
         data: {
 
 
         }
 
     })
-        .done(function () {
+        .done(function (result) {
+            var list = ''
+            for (i = 0; i < result.length; i++) {
+                list += "Användarnamn: " + result[i].userName+" Email: "+ result[i].email + "<button class='deleteButton' data-id='" + result[i].id + "'>ta bort</button>"+"<br>";
+            };
+            $('#showTestPosts').html(list);
+            
+            console.log(status);
+        })
+        .fail(function (xhr, status, error) {
+            alert("fail");
+            console.log("Error", xhr, status, error);
+        })
+});
 
-            alert("success")
-            console.log("Success!")
+$("body").on("click", ".deleteButton", function () {
+
+    let clickedId = $(this).data("id")
+    console.log(clickedId)
+    $.ajax({
+        url: '/user/delete',
+        method: 'DELETE',
+        data: {
+            clickedId
+        }
+
+    })
+        .done(function (result) {
+            alert(result)
+            console.log(status);
 
         })
 
         .fail(function (xhr, status, error) {
 
-            alert("fail");
+            alert(`Fail!`)
             console.log("Error", xhr, status, error);
 
         })
-
 });
