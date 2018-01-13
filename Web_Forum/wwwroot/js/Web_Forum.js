@@ -309,8 +309,10 @@ $(document).on("click", "a.threadLink", function () {
         }
     })
         .done(function (result) {
+            var threadId = result.id;
             buildThreadDataTable(result);
-            fillTableWithThreadPosts(result);
+            fillTableWithThreadPosts(threadId);
+            buildThreadPostForm(result);
 
             console.log(result);
         })
@@ -331,9 +333,8 @@ function buildThreadDataTable(result) {
     $("#threadDataDiv").append(html);
 }
 
-function fillTableWithThreadPosts(result) {
-
-    var id = result.id;
+function fillTableWithThreadPosts(id) {
+    $("#threadDataDiv tr").empty();
     console.log(id);
 
     $.ajax({
@@ -352,8 +353,8 @@ function fillTableWithThreadPosts(result) {
                 html += '<td style="border: 1px solid black;">' + post.createdBy + '</td>';
                 html += '<td style="border: 1px solid black;">' + post.dateOfCreation + '</td>';
                 html += '<td style="border: 1px solid black;">' + post.content + '</td>';
-                html += '<td><button class="deletePostButton_' + post.id + '">Delete</button></td>';
-                html += '<td><button class="editPostButton_' + post.id + '">Edit</button></td>';
+                html += '<td><button id="id_delete_for_'  + post.id +'"class="deletePostButton_">Delete</button></td>';
+                html += '<td><button id="id_edit_for_' + post.id + '" class="editPostButton">Edit</button></td>';
                 html += '</tr>';
             });
 
@@ -369,7 +370,41 @@ function fillTableWithThreadPosts(result) {
         });
 
 }
+function buildThreadPostForm(result) {
+    //IMPORTANT: put the thread Id in the post-form for the Posts in a Thread
+    var html = '<div id="threadPostForm" thread-id="' + result.id + '">'
+    html += '<textarea name="CreatePostContent" placeholder="Skriv ett inlägg..." ></textarea>';
+    html += '<button class="sendThreadForm">Svara</button>';
+    html += '</div >';
+
+    $("#threadDataDiv").append(html);
+}
 
 function emptythreadDataDiv() {
     $("#threadDataDiv").empty();
 }
+
+$(document).on("click", "button.sendThreadForm", function () {
+    //Get the thread.Id from the thread-id attribute inside the post-form
+    var id = $("#threadPostForm").attr('thread-id');
+
+    $.ajax({
+        url: '/contents/threads/' + id + '/posts',
+        method: 'POST',
+        data: {
+            "id": id,
+            "Content" : $('#threadPostForm [name=CreatePostContent]').val()
+        }
+    })
+        .done(function (result) {
+            console.log(result);
+
+            var threadId = result.threadId;
+            fillTableWithThreadPosts(threadId);
+        })
+
+        .fail(function (xhr, status, error) {
+            alert("fail!");
+        });
+
+});

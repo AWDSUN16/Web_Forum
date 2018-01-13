@@ -99,5 +99,60 @@ namespace Web_Forum.Controllers
         }
 
         //[HttpGet, Route("")]
+
+        [HttpPost, Route("/contents/threads/{id:int}/posts")]
+        async public Task<IActionResult> SavePostToDatabase(int id, Post UserCreatedPostInThread)
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                Post UserCreatedPostToSave = new Post();
+                UserCreatedPostToSave.Content = UserCreatedPostInThread.Content;
+                UserCreatedPostToSave.CreatedBy = User.Identity.Name;
+                UserCreatedPostToSave.DateOfCreation = DateTime.Now.ToString();
+                UserCreatedPostToSave.ThreadId = id;
+
+                web_ForumDbContext.Add(UserCreatedPostToSave);
+                var result = await web_ForumDbContext.SaveChangesAsync();
+
+                return Ok(UserCreatedPostToSave);
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpPut, Route("/contents/posts")]
+        async public Task<IActionResult> EditPost(Post UserEditedPost)
+        {
+            if(User.Identity.IsAuthenticated)
+            {
+                Post EditedPostToSaveToDatabase = web_ForumDbContext.Posts.SingleOrDefault(p => p.Id == UserEditedPost.Id);
+
+                EditedPostToSaveToDatabase.Content = UserEditedPost.Content;
+
+                var result = await web_ForumDbContext.SaveChangesAsync();
+
+                return Ok("succeeded!");
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpGet, Route("contents/posts")]
+        public IActionResult GetPostById(int id)
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                Post postToEdit = web_ForumDbContext.Posts.Find(id);
+                return Ok(postToEdit);
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
     }
 }
