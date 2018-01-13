@@ -99,5 +99,13 @@ namespace Web_Forum.Controllers
         }
 
         //[HttpGet, Route("")]
+
+        [HttpPost, Route("/contents/threads/{id:int}/posts")]
+        public IActionResult SavePostToDatabase(int id)
+        {
+            
+
+            return Ok("Hej!");
+        }
     }
 }
