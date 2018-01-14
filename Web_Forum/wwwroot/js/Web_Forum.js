@@ -354,7 +354,8 @@ function fillTableWithThreadPosts(id) {
                 html += '<td style="border: 1px solid black;">' + post.createdBy + '</td>';
                 html += '<td style="border: 1px solid black;">' + post.dateOfCreation + '</td>';
                 html += '<td style="border: 1px solid black;">' + post.content + '</td>';
-                html += '<td><button id="id_delete_for_'  + post.id +'" class="deletePostButton">Delete</button></td>';
+                html += '<td><button id="id_reply_for_'  + post.id +'" class="replyToPostButton">Svara</button></td>';
+                html += '<td><button id="id_delete_for_' + post.id + '" class="deletePostButton">Delete</button></td>';
                 html += '<td><button id="id_edit_for_' + post.id + '" class="editPostButton">Edit</button></td>';
                 html += '</tr>';
             });
@@ -375,7 +376,7 @@ function buildThreadPostForm(result) {
     //IMPORTANT: put the thread Id in the post-form for the Posts in a Thread
     var html = '<div id="threadPostForm" thread-id="' + result.id + '">'
     html += '<textarea name="CreatePostContent" placeholder="Skriv ett inlägg..." ></textarea>';
-    html += '<button class="sendThreadForm">Svara</button>';
+    html += '<button class="sendThreadForm">Skicka</button>';
     html += '</div >';
 
     $("#threadDataDiv").append(html);
@@ -510,6 +511,28 @@ $(document).on("click", "button.deleteThreadButton", function () {
         .done(function (result) {
             console.log(result);
             updateThreadDiv();
+        })
+
+        .fail(function (xhr, status, error) {
+            alert("fail!");
+        });
+});
+
+$(document).on("click", "button.replyToPostButton", function () {
+
+    var idToSplit = $(this).attr('id');
+    var idToSend = idToSplit.split('_');
+
+    $.ajax({
+        url: '/contents/posts',
+        method: 'GET',
+        data: {
+            "Id": idToSend[3]
+        }
+    })
+        .done(function (result) {
+            console.log(result);
+            $("#threadPostForm textarea[name=CreatePostContent]").val('' + result.createdBy + ': "' + result.content + '"');
         })
 
         .fail(function (xhr, status, error) {
