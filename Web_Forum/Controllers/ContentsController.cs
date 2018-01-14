@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Web_Forum.Entities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -115,7 +116,7 @@ namespace Web_Forum.Controllers
                     threadList.Add("html += '<td style='border: 1px solid black;'><a href='#threadDataDiv' class='threadLink' thread-id=" + result[i].Id + ">" + result[i].Title + "</a></td>");
                     threadList.Add("html += '<td style='border: 1px solid black; '>" + result[i].Title + "</td>");
                     threadList.Add("html += '<td style='border: 1px solid black; '>" + result[i].DateOfCreation + "</td>");
-                    threadList.Add("html += <td><button id='" + result[i].Id + "'>delete</button></td>");
+                    threadList.Add("html += <td><button class='adminthreaddeleteButton' data-id='" + result[i].Id + "'>delete</button></td>");
                     threadList.Add("html += '<tr>'");
                 }
                 return Ok(threadList);
@@ -193,5 +194,51 @@ namespace Web_Forum.Controllers
                 return BadRequest();
             }
         }
+        [Authorize(Policy = "AdminRights")]
+        [HttpDelete, Route("/contents/adminthreaddelete")]     
+        public IActionResult AdminThreadDelete(int clickedId)
+        {
+            string temp="";
+            foreach (Thread thread in web_ForumDbContext.Threads)
+            {
+                if (thread.Id == clickedId)
+                {
+                    foreach(Post post in web_ForumDbContext.Posts)
+                    {
+                        if (thread.Id == post.ThreadId)
+                        {
+                            web_ForumDbContext.Remove(post);
+                        }
+                    }
+                    temp= thread.Title;
+                    web_ForumDbContext.Remove(thread);
+                }
+
+            }
+            web_ForumDbContext.SaveChanges();
+
+            return Ok("titel: "+temp + " borttagen");
+        }
+
+
+        //[HttpDelete, Route("/contents/userthreaddelete")]
+        //public IActionResult UserThreadDelete(int clickedId)
+        //{
+        //   if(User.Identity.IsAuthenticated)
+        //    {
+        //        foreach (Thread thread in web_ForumDbContext.Threads)
+        //        {
+        //            if (User.Identity.Name == Thread[i].createdby)
+        //            {
+        //                remove thread
+        //            }
+
+        //        }
+        //    }
+           
+        //    web_ForumDbContext.SaveChanges();
+
+        //    return Ok("titel: " + temp + " borttagen");
+        //}
     }
 }

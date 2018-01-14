@@ -259,6 +259,7 @@ $("#createThreadAndPostForm button").click(function () {
         });
 });
 
+
 function updateThreadDiv() {
 
     $.ajax({
@@ -271,11 +272,6 @@ function updateThreadDiv() {
                 list += result[i];
             };
             $('#threadDiv').html(list);
-            ////var threads = fillTableWithThreads(result);
-            //$("#threadDiv tbody").empty();
-            //$("#threadDiv tbody").append(threads);
-
-            //console.log(result);
         })
 
         .fail(function (xhr, status, error) {
@@ -398,4 +394,30 @@ $(document).on("click", "button.sendThreadForm", function () {
             alert("fail!");
         });
 
+});
+
+$("body").on("click", ".adminthreaddeleteButton", function () {
+
+    let clickedId = $(this).data("id")
+    console.log(clickedId)
+    $.ajax({
+        url: '/contents/adminthreaddelete',
+        method: 'DELETE',
+        data: {
+            clickedId
+        }
+
+    })
+        .done(function (result) {
+            alert(result)
+            console.log(status);
+
+        })
+
+        .fail(function (xhr, status, error) {
+
+            alert(`Fail!`)
+            console.log("Error", xhr, status, error);
+
+        })
 });
