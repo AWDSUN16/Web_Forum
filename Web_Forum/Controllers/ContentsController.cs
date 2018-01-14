@@ -65,17 +65,7 @@ namespace Web_Forum.Controllers
 
             return Ok(result);
         }
-
-        //[HttpDelete, Route("/contents/threads/{id}")]
-        //public IActionResult DeleteThread(int id)
-        //{
-        //    var threadToDelete = web_ForumDbContext.Threads.SingleOrDefault(t => t.Id == id);
-
-        //    var result = web_ForumDbContext.Threads.Remove(threadToDelete);
-
-        //    return Ok(result);
-        //}
-
+        
         //[HttpPut, Route("/contents/threads/{id}")]
         //public IActionResult UpdateThread(Thread ThreadToUpdate)
         //{
@@ -133,7 +123,7 @@ namespace Web_Forum.Controllers
 
                 var result = await web_ForumDbContext.SaveChangesAsync();
 
-                return Ok("succeeded!");
+                return Ok(EditedPostToSaveToDatabase);
             }
             else
             {
@@ -141,13 +131,56 @@ namespace Web_Forum.Controllers
             }
         }
 
-        [HttpGet, Route("contents/posts")]
+        [HttpDelete, Route("/contents/posts")]
+        public IActionResult DeletePost(int id)
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                Post postToDelete = web_ForumDbContext.Posts.Find(id);
+                web_ForumDbContext.Remove(postToDelete);
+
+                var result = web_ForumDbContext.SaveChangesAsync();
+
+                return Ok(result);
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpGet, Route("/contents/posts")]
         public IActionResult GetPostById(int id)
         {
             if (User.Identity.IsAuthenticated)
             {
-                Post postToEdit = web_ForumDbContext.Posts.Find(id);
+                Post postToEdit = web_ForumDbContext.Posts.SingleOrDefault( p => p.Id == id);
                 return Ok(postToEdit);
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpDelete, Route("/contents/threads")]
+        async public Task<IActionResult> DeleteThreadAndPostsInIt(int id)
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                Thread threadToDelete = web_ForumDbContext.Threads.SingleOrDefault(t => t.Id == id);
+                var postsToDelete = web_ForumDbContext.Posts.Where(p => p.ThreadId == threadToDelete.Id);
+
+                foreach (Post postToDeleteInThread in postsToDelete)
+                {
+                    web_ForumDbContext.Remove(postToDeleteInThread);
+                }
+
+                web_ForumDbContext.Threads.Remove(threadToDelete);
+
+                var result = await web_ForumDbContext.SaveChangesAsync();
+
+                return Ok(result);
             }
             else
             {
