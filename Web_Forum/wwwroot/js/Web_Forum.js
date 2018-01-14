@@ -285,25 +285,8 @@ function updateThreadDiv() {
 
 }
 
-function fillTableWithThreads(result) {
-    $.ajax({
-        url: '/contents/policycheck',
-        method: 'GET'
-    })
-        .done(function (result) {
-            var html = "";
 
-            $.each(result, function (key, thread) {
-                html += '<tr>';
-                html += '<td style="border: 1px solid black;">' + '<a href="#threadDataDiv" class="threadLink" thread-id="' + thread.id + '">' + thread.title + '</a>' + '</td>';
-                html += '<td style="border: 1px solid black;">' + thread.dateOfCreation + '</td>';
-                html += '<td style="border: 1px solid black;">' + thread.amountOfReplies + '</td>';
-                html += '<td style="border: 1px solid black;">' + thread.amountOfViews + '</td>';
-                html += '</tr>';
-            });
-        })
-    return html;
-}
+
 
 $(document).on("click", "a.threadLink", function () {
 

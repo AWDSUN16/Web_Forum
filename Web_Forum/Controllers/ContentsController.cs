@@ -111,25 +111,30 @@ namespace Web_Forum.Controllers
             {
                 for (int i = 0; i < result.Count; i++)
                 {
+                    threadList.Add("html += '<tr>'");
+                    threadList.Add("html += '<td style='border: 1px solid black;'><a href='#threadDataDiv' class='threadLink' thread-id=" + result[i].Id + ">" + result[i].Title + "</a></td>");
                     threadList.Add("html += '<td style='border: 1px solid black; '>" + result[i].Title + "</td>");
                     threadList.Add("html += '<td style='border: 1px solid black; '>" + result[i].DateOfCreation + "</td>");
-                    threadList.Add("html += '<br>'");
-                    threadList.Add("html += '<td style='border: 1px solid black; '>" + result[i].DateOfCreation + "</td>");
+                    threadList.Add("html += <td><button id='" + result[i].Id + "'>delete</button></td>");
+                    threadList.Add("html += '<tr>'");
                 }
-                    //foreach (object threadEntry in result)
-                    //{ 
-                    //  adminList.Add("html += '<td style='border: 1px solid black; '>" + result[i].dateOfCreation + "</td>");
-                    //}
-
-
-                    //';
-                    //';
-                    //html += '<td style="border: 1px solid black;">' + thread.amountOfViews + '</td>';
-                    //html += '</tr>';
-                    return Ok(threadList);
+                return Ok(threadList);
+            }
+            else
+            {
+                for (int i = 0; i < result.Count; i++)
+                {
+                    threadList.Add("html += '<tr>'");
+                    threadList.Add("html += '<td style='border: 1px solid black;'><a href='#threadDataDiv' class='threadLink' thread-id=" + result[i].Id + ">" + result[i].Title + "</a></td>");
+                    threadList.Add("html += '<td style='border: 1px solid black; '>" + result[i].Title + "</td>");
+                    threadList.Add("html += '<td style='border: 1px solid black; '>" + result[i].DateOfCreation + "</td>");
+                    threadList.Add("html += '<tr>'");
+                }
+                return Ok(threadList);
             }
 
-            return Ok("yo");
+
+
         }
 
         //[HttpGet, Route("")]
