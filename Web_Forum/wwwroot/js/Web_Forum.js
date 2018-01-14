@@ -11,7 +11,7 @@ function updateNavBar() {
         .done(function (result) {
             { $("#userNameGoesHere").html("<span>"+result+"</span>"); }
             if (result == "admin")
-            { $("#adminButton").show();}
+            { $("#showUsernameWhenSingedIn").show();}
            
         })
 
@@ -266,12 +266,16 @@ function updateThreadDiv() {
         method: 'GET'
     })
         .done(function (result) {
+            var list = ''
+            for (i = 0; i < result.length; i++) {
+                list += result[i];
+            };
+            $('#threadDiv').html(list);
+            ////var threads = fillTableWithThreads(result);
+            //$("#threadDiv tbody").empty();
+            //$("#threadDiv tbody").append(threads);
 
-            var threads = fillTableWithThreads(result);
-            $("#threadDiv tbody").empty();
-            $("#threadDiv tbody").append(threads);
-
-            console.log(result);
+            //console.log(result);
         })
 
         .fail(function (xhr, status, error) {
@@ -282,18 +286,22 @@ function updateThreadDiv() {
 }
 
 function fillTableWithThreads(result) {
+    $.ajax({
+        url: '/contents/policycheck',
+        method: 'GET'
+    })
+        .done(function (result) {
+            var html = "";
 
-    var html = "";
-
-    $.each(result, function (key, thread) {
-        html += '<tr>';
-        html += '<td style="border: 1px solid black;">' + '<a href="#threadDataDiv" class="threadLink" thread-id="' + thread.id + '">' + thread.title + '</a>' + '</td>';
-        html += '<td style="border: 1px solid black;">' + thread.dateOfCreation + '</td>';
-        html += '<td style="border: 1px solid black;">' + thread.amountOfReplies + '</td>';
-        html += '<td style="border: 1px solid black;">' + thread.amountOfViews + '</td>';
-        html += '</tr>';
-    });
-
+            $.each(result, function (key, thread) {
+                html += '<tr>';
+                html += '<td style="border: 1px solid black;">' + '<a href="#threadDataDiv" class="threadLink" thread-id="' + thread.id + '">' + thread.title + '</a>' + '</td>';
+                html += '<td style="border: 1px solid black;">' + thread.dateOfCreation + '</td>';
+                html += '<td style="border: 1px solid black;">' + thread.amountOfReplies + '</td>';
+                html += '<td style="border: 1px solid black;">' + thread.amountOfViews + '</td>';
+                html += '</tr>';
+            });
+        })
     return html;
 }
 

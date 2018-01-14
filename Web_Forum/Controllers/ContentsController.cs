@@ -39,7 +39,7 @@ namespace Web_Forum.Controllers
                 UserCreatdedOriginalPost.ThreadId = UserCreatedThread.Id;
 
                 web_ForumDbContext.Add(UserCreatdedOriginalPost);
-                
+
                 await web_ForumDbContext.SaveChangesAsync();
 
                 return Ok(UserCreatedThread);
@@ -88,14 +88,48 @@ namespace Web_Forum.Controllers
         //    return Ok("");
         //}
 
+        //[HttpGet, Route("/contents/getAllThreads")]
+        //public IActionResult GetAllThreads()
+        //{
+        //    List<Thread> result = web_ForumDbContext.Threads.ToList();
+
+        //    result.Sort((a, b) => b.DateOfCreation.CompareTo(a.DateOfCreation));
+
+        //    return Ok(result);
+        //}
+
         [HttpGet, Route("/contents/getAllThreads")]
-        public IActionResult GetAllThreads()
+        public IActionResult PolicyCheck()
         {
             List<Thread> result = web_ForumDbContext.Threads.ToList();
 
             result.Sort((a, b) => b.DateOfCreation.CompareTo(a.DateOfCreation));
 
-            return Ok(result);
+            List<string> threadList = new List<string>();
+
+            if (User.Identity.IsAuthenticated && User.HasClaim("role", "administrator"))
+            {
+                for (int i = 0; i < result.Count; i++)
+                {
+                    threadList.Add("html += '<td style='border: 1px solid black; '>" + result[i].Title + "</td>");
+                    threadList.Add("html += '<td style='border: 1px solid black; '>" + result[i].DateOfCreation + "</td>");
+                    threadList.Add("html += '<br>'");
+                    threadList.Add("html += '<td style='border: 1px solid black; '>" + result[i].DateOfCreation + "</td>");
+                }
+                    //foreach (object threadEntry in result)
+                    //{ 
+                    //  adminList.Add("html += '<td style='border: 1px solid black; '>" + result[i].dateOfCreation + "</td>");
+                    //}
+
+
+                    //';
+                    //';
+                    //html += '<td style="border: 1px solid black;">' + thread.amountOfViews + '</td>';
+                    //html += '</tr>';
+                    return Ok(threadList);
+            }
+
+            return Ok("yo");
         }
 
         //[HttpGet, Route("")]
@@ -125,7 +159,7 @@ namespace Web_Forum.Controllers
         [HttpPut, Route("/contents/posts")]
         async public Task<IActionResult> EditPost(Post UserEditedPost)
         {
-            if(User.Identity.IsAuthenticated)
+            if (User.Identity.IsAuthenticated)
             {
                 Post EditedPostToSaveToDatabase = web_ForumDbContext.Posts.SingleOrDefault(p => p.Id == UserEditedPost.Id);
 
