@@ -13,5 +13,6 @@ namespace Web_Forum.Entities
         public string DateOfCreation { get; set; }
         public int AmountOfReplies { get; set; }
         public int AmountOfViews { get; set; }
+        public string ThreadCreatedBy { get; set; }
     }
 }

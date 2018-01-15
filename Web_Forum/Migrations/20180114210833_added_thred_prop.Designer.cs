@@ -11,9 +11,10 @@ using Web_Forum.Entities;
 namespace Web_Forum.Migrations
 {
     [DbContext(typeof(Web_ForumDbContext))]
-    partial class Web_ForumDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180114210833_added_thred_prop")]
+    partial class added_thred_prop
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

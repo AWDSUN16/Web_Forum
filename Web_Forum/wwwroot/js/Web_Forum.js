@@ -333,19 +333,8 @@ function fillTableWithThreadPosts(id) {
     })
         .done(function (result) {
 
-            var html = "";
-
-            $.each(result, function (key, post) {
-                html += '<tr>';
-                html += '<td style="border: 1px solid black;">' + post.createdBy + '</td>';
-                html += '<td style="border: 1px solid black;">' + post.dateOfCreation + '</td>';
-                html += '<td style="border: 1px solid black;">' + post.content + '</td>';
-                html += '<td><button id="id_delete_for_'  + post.id +'"class="deletePostButton_">Delete</button></td>';
-                html += '<td><button id="id_edit_for_' + post.id + '" class="editPostButton">Edit</button></td>';
-                html += '</tr>';
-            });
-
-            $("#threadDataDiv").append(html);
+           
+            $("#threadDataDiv").html(result);
 
             console.log(result);
         })
@@ -356,15 +345,6 @@ function fillTableWithThreadPosts(id) {
             console.log("Error", xhr, status, error)
         });
 
-}
-function buildThreadPostForm(result) {
-    //IMPORTANT: put the thread Id in the post-form for the Posts in a Thread
-    var html = '<div id="threadPostForm" thread-id="' + result.id + '">'
-    html += '<textarea name="CreatePostContent" placeholder="Skriv ett inlägg..." ></textarea>';
-    html += '<button class="sendThreadForm">Svara</button>';
-    html += '</div >';
-
-    $("#threadDataDiv").append(html);
 }
 
 function emptythreadDataDiv() {
@@ -380,7 +360,7 @@ $(document).on("click", "button.sendThreadForm", function () {
         method: 'POST',
         data: {
             "id": id,
-            "Content" : $('#threadPostForm [name=CreatePostContent]').val()
+            "Content": $("#threadPostForm [name=CreatePostContent]").val()  
         }
     })
         .done(function (result) {
@@ -402,6 +382,32 @@ $("body").on("click", ".adminthreaddeleteButton", function () {
     console.log(clickedId)
     $.ajax({
         url: '/contents/adminthreaddelete',
+        method: 'DELETE',
+        data: {
+            clickedId
+        }
+
+    })
+        .done(function (result) {
+            alert(result)
+            console.log(status);
+
+        })
+
+        .fail(function (xhr, status, error) {
+
+            alert(`Fail!`)
+            console.log("Error", xhr, status, error);
+
+        })
+});
+
+$("body").on("click", ".userdeletepost", function () {
+
+    let clickedId = $(this).data("id")
+    console.log(clickedId)
+    $.ajax({
+        url: '/contents/deletepost',
         method: 'DELETE',
         data: {
             clickedId
