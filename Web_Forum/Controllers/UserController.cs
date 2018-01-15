@@ -36,15 +36,21 @@ namespace Web_Forum.Controllers
         }
 
         [HttpPost, Route("/user/login")]
-        async public Task<IActionResult> SignIn(string email)
+        async public Task<IActionResult> SignIn(string username, string password)
         {
             if (!User.Identity.IsAuthenticated)
             {
-                var userToSignIn = await userManager.FindByEmailAsync(email);
+                var userToSignIn = await userManager.FindByNameAsync(username);
+                var valid= await userManager.CheckPasswordAsync(userToSignIn,password);
+                if(valid==true)
+                {
+                    await signInManager.SignInAsync(userToSignIn, true);
 
-                await signInManager.SignInAsync(userToSignIn, true);
+                    return Ok(userToSignIn);
+                }
 
-                return Ok(userToSignIn);
+                return BadRequest();
+
             }
             else
             {

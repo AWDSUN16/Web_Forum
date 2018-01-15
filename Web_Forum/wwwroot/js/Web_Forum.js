@@ -58,7 +58,8 @@ $("#userLoginForm button").click(function () {
         url: '/user/login',
         method: 'POST',
         data: {
-            "email": $("#userLoginForm [name=UserLoginEmail]").val()
+            "username": $("#userLoginForm [name=signInUserName]").val(),
+            "password": $("#userLoginForm [name=signInPassword]").val()
         }
 
     })
@@ -427,6 +428,32 @@ $("body").on("click", ".usereditpost", function () {
     $.ajax({
         url: '/contents/editpost',
         method: 'PUT',
+        data: {
+            clickedId
+        }
+
+    })
+        .done(function (result) {
+            alert(result)
+            console.log(status);
+
+        })
+
+        .fail(function (xhr, status, error) {
+
+            alert(`Fail!`)
+            console.log("Error", xhr, status, error);
+
+        })
+});
+
+$("body").on("click", ".userthreaddeleteButton", function () {
+
+    let clickedId = $(this).data("id")
+    console.log(clickedId)
+    $.ajax({
+        url: '/contents/userthreaddelete',
+        method: 'DELETE',
         data: {
             clickedId
         }
