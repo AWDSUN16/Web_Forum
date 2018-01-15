@@ -75,17 +75,14 @@ namespace Web_Forum.Controllers
                 postlist.Add("html += '<td style='border: 1px solid black; '>" + post.CreatedBy + "</td>");
                 if (User.Identity.IsAuthenticated && User.HasClaim("role", "administrator"))
                 {
-                    postlist.Add("html += '<td> <button class='userdeletepost' data-id='" + post.Id + "'>delete</button></td>");
+                    postlist.Add("html += '<td> <button class='userdeletepost' data-id='" + post.Id + "'>Radera</button></td>");
+                    postlist.Add("html += '<td> <button class='usereditpost' data-id='" + post.Id + "'>Redigera</button></td>");
                 }
                 else if (User.Identity.IsAuthenticated && User.Identity.Name == thread.ThreadCreatedBy)
                 {
-                    postlist.Add("html += '<td> <button class='userdeletepost' data-id='" + post.Id + "'>delete</button></td>");
+                    postlist.Add("html += '<td> <button class='userdeletepost' data-id='" + post.Id + "'>Radera</button></td>");
+                    postlist.Add("html += '<td> <button class='usereditpost' data-id='" + post.Id + "'>Redigera</button></td>");
                 }
-
-                postlist.Add("html += '<div id='threadPostForm' thread-id=" + thread.Id + ">'");
-                postlist.Add("html += '<textarea name='CreatePostContent' placeholder='Skriv ett inlägg...' ></textarea>'");
-                postlist.Add("html += '<button class='sendThreadForm'>Svara</button></td>'");
-                postlist.Add("html += '</div >'");
                 postlist.Add("html += '</tr>'");
             }
 
@@ -142,12 +139,12 @@ namespace Web_Forum.Controllers
             {
                 for (int i = 0; i < result.Count; i++)
                 {
-                    threadList.Add("html += '<tr>'");
+                    //threadList.Add("html += '<tr>'");
                     threadList.Add("html += '<td style='border: 1px solid black;'><a href='#threadDataDiv' class='threadLink' thread-id=" + result[i].Id + ">" + result[i].Title + "</a></td>");
                     threadList.Add("html += '<td style='border: 1px solid black; '>" + result[i].Title + "</td>");
                     threadList.Add("html += '<td style='border: 1px solid black; '>" + result[i].DateOfCreation + "</td>");
-                    threadList.Add("html += <td><button class='adminthreaddeleteButton' data-id='" + result[i].Id + "'>delete</button></td>");
-                    threadList.Add("html += '<tr>'");
+                    threadList.Add("html += '<td><button class='adminthreaddeleteButton' data-id='" + result[i].Id + "'>delete</button></td>");
+                    //threadList.Add("html += '</tr>'");
                 }
                 return Ok(threadList);
             }
@@ -155,11 +152,11 @@ namespace Web_Forum.Controllers
             {
                 for (int i = 0; i < result.Count; i++)
                 {
-                    threadList.Add("html += '<tr>'");
+                    //threadList.Add("html += '<tr>'");
                     threadList.Add("html += '<td style='border: 1px solid black;'><a href='#threadDataDiv' class='threadLink' thread-id=" + result[i].Id + ">" + result[i].Title + "</a></td>");
                     threadList.Add("html += '<td style='border: 1px solid black; '>" + result[i].Title + "</td>");
                     threadList.Add("html += '<td style='border: 1px solid black; '>" + result[i].DateOfCreation + "</td>");
-                    threadList.Add("html += '<tr>'");
+                    //threadList.Add("html += '<tr>'");
                 }
                 return Ok(threadList);
             }

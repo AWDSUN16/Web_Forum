@@ -1,6 +1,6 @@
 ﻿$(document).ready(function () {
     updateNavBar();
-    updateThreadDiv();
+    getAllThreads();
 });
 //test
 function updateNavBar() {
@@ -249,7 +249,7 @@ $("#createThreadAndPostForm button").click(function () {
         }
     })
         .done(function (result) {
-            updateThreadDiv();
+            getAllThreads();
             console.log(result);
         })
 
@@ -260,18 +260,14 @@ $("#createThreadAndPostForm button").click(function () {
 });
 
 
-function updateThreadDiv() {
+function getAllThreads() {
 
     $.ajax({
         url: '/contents/getAllThreads',
         method: 'GET'
     })
         .done(function (result) {
-            var list = ''
-            for (i = 0; i < result.length; i++) {
-                list += result[i];
-            };
-            $('#threadDiv').html(list);
+            $('#threadDiv').html(result);
         })
 
         .fail(function (xhr, status, error) {
@@ -296,11 +292,7 @@ $(document).on("click", "a.threadLink", function () {
         }
     })
         .done(function (result) {
-            var threadId = result.id;
-            buildThreadDataTable(result);
-            fillTableWithThreadPosts(threadId);
-            buildThreadPostForm(result);
-
+            fillTableWithThreadPosts(result.id);
             console.log(result);
         })
 
@@ -310,15 +302,6 @@ $(document).on("click", "a.threadLink", function () {
         });
 
 });
-
-function buildThreadDataTable(result) {
-    emptythreadDataDiv();
-
-    var html = '<a href="/index.html">' + 'Tillbaka' + '</a>' + ' > ' + result.title;
-    html += '<h1>' + result.title + '</h1>';
-
-    $("#threadDataDiv").append(html);
-}
 
 function fillTableWithThreadPosts(id) {
     $("#threadDataDiv tr").empty();
@@ -332,10 +315,8 @@ function fillTableWithThreadPosts(id) {
         }
     })
         .done(function (result) {
-
-           
             $("#threadDataDiv").html(result);
-
+            buildThreadPostForm();
             console.log(result);
         })
 
@@ -347,13 +328,24 @@ function fillTableWithThreadPosts(id) {
 
 }
 
+function buildThreadPostForm() {
+    var threadId = $(".threadLink").attr("thread-id");
+    alert(threadId);
+    var html = '<div id="threadPostForm" data-id="' + threadId + '">';
+    html += '<textarea name="CreatePostContent" placeholder="Skriv ett inlägg..." ></textarea>';
+    html += '<button class="sendThreadForm">Svara</button></td>';
+    html += '</div >';
+
+    $("#threadDataDiv").append(html);
+}
+
 function emptythreadDataDiv() {
     $("#threadDataDiv").empty();
 }
 
 $(document).on("click", "button.sendThreadForm", function () {
     //Get the thread.Id from the thread-id attribute inside the post-form
-    var id = $("#threadPostForm").attr('thread-id');
+    var id = $("#threadPostForm").data('id');
 
     $.ajax({
         url: '/contents/threads/' + id + '/posts',
@@ -409,6 +401,32 @@ $("body").on("click", ".userdeletepost", function () {
     $.ajax({
         url: '/contents/deletepost',
         method: 'DELETE',
+        data: {
+            clickedId
+        }
+
+    })
+        .done(function (result) {
+            alert(result)
+            console.log(status);
+
+        })
+
+        .fail(function (xhr, status, error) {
+
+            alert(`Fail!`)
+            console.log("Error", xhr, status, error);
+
+        })
+});
+
+$("body").on("click", ".usereditpost", function () {
+
+    let clickedId = $(this).data("id")
+    console.log(clickedId)
+    $.ajax({
+        url: '/contents/editpost',
+        method: 'PUT',
         data: {
             clickedId
         }
