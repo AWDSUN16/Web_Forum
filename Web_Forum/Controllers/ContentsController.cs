@@ -71,17 +71,15 @@ namespace Web_Forum.Controllers
             {
                 postlist.Add("html += '<tr>'");
                 postlist.Add("html += '<td style='border: 1px solid black; '>" + post.CreatedBy + "</td>");
-                
-                postlist.Add("html += '<td style='border: 1px solid black; '>" + post.DateOfCreation + "</td>");
                 postlist.Add("html += '<td style='border: 1px solid black; '>" + post.Content + "</td>");
-               
+                postlist.Add("html += '<td style='border: 1px solid black; '>" + post.DateOfCreation + "</td>");
                 if (User.Identity.IsAuthenticated && User.HasClaim("role", "administrator"))
                 {
                     postlist.Add("html += '<td> <button class='userdeletepost' data-id='" + post.Id + "'>Radera</button></td>");
                     postlist.Add("html += '<td> <button class='usereditpost' data-id='" + post.Id + "'>Redigera</button></td>");
                  
                 }
-                else if (User.Identity.IsAuthenticated && User.Identity.Name == thread.ThreadCreatedBy)
+                else if (User.Identity.IsAuthenticated && User.Identity.Name == post.CreatedBy)
                 {
                     postlist.Add("html += '<td> <button class='userdeletepost' data-id='" + post.Id + "'>Radera</button></td>");
                     postlist.Add("html += '<td> <button class='usereditpost' data-id='" + post.Id + "'>Redigera</button></td>");
@@ -141,7 +139,7 @@ namespace Web_Forum.Controllers
                 {
                     threadList.Add("html += '<tr>'");
                     threadList.Add("html += '<td style='border: 1px solid black;'><a href='#threadDataDiv' class='threadLink' thread-id=" + result[i].Id + ">" + result[i].Title + "</a></td>");
-   
+                    threadList.Add("html += '<td style='border: 1px solid black; '>" + result[i].ThreadCreatedBy + "</td>");
                     threadList.Add("html += '<td style='border: 1px solid black; '>" + result[i].DateOfCreation + "</td>");
                     if (User.Identity.IsAuthenticated && User.HasClaim("role", "administrator"))
                     {
