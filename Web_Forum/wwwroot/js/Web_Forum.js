@@ -279,16 +279,18 @@ function getAllThreads() {
 
 
 
-
+// 1. WHEN YOU CLICK A THREAD-LINK
 $(document).on("click", "a.threadLink", function () {
-
-    var id = $(this).attr("thread-id");
+    // Gets the id from the currently clicked <a>-tag's "thread-id""
+    var currentlyClickedThreadId = $(this).attr("thread-id");
+    // Sets the "thread-id" of the <div id="threadDataDiv">-tag to that of the currently ClickedThreadId variable.
+    $("#threadDataDiv").attr("thread-id", currentlyClickedThreadId);
 
     $.ajax({
         url: '/contents/threads/',
         method: 'GET',
         data: {
-            "id": id
+            "id": currentlyClickedThreadId
         }
     })
         .done(function (result) {
@@ -303,9 +305,12 @@ $(document).on("click", "a.threadLink", function () {
 
 });
 
+//2. WHEN THE THREAD RETURNS ITS POSTS - id referes to the Id of the Thread sent earlier
 function fillTableWithThreadPosts(id) {
+    // Clean the div of all posts
     $("#threadDataDiv tr").empty();
-    console.log(id);
+    // Set a variable according to the threadDataDiv's "thread-id".
+    var threadId = $("#threadDataDiv").attr("thread-id");
 
     $.ajax({
         url: '/contents/threads/' + id + '/posts',
@@ -328,9 +333,10 @@ function fillTableWithThreadPosts(id) {
 
 }
 
+//3. AFTER THE POSTS HAVE BEEN RETURNED, A POSTFORM IS BUILT
 function buildThreadPostForm() {
-    var threadId = $(".threadLink").attr("thread-id");
-    alert(threadId);
+    // Set a variable according to the threadDataDiv's "thread-id".
+    var threadId = $("#threadDataDiv").attr("thread-id");
     var html = '<div id="threadPostForm" data-id="' + threadId + '">';
     html += '<textarea name="CreatePostContent" placeholder="Skriv ett inlägg..." ></textarea>';
     html += '<button class="sendThreadForm">Svara</button></td>';
@@ -358,6 +364,7 @@ $(document).on("click", "button.sendThreadForm", function () {
         .done(function (result) {
             console.log(result);
 
+            // Fill the table with new posts after one has been made
             var threadId = result.threadId;
             fillTableWithThreadPosts(threadId);
         })
