@@ -1,6 +1,6 @@
 ﻿$(document).ready(function () {
     updateNavBar();
-    updateThreadDiv();
+    getAllThreads();
 });
 //test
 function updateNavBar() {
@@ -11,7 +11,7 @@ function updateNavBar() {
         .done(function (result) {
             { $("#userNameGoesHere").html("<span>"+result+"</span>"); }
             if (result == "admin")
-            { $("#adminButton").show();}
+            { $("#showUsernameWhenSingedIn").show();}
            
         })
 
@@ -249,7 +249,7 @@ $("#createThreadAndPostForm button").click(function () {
         }
     })
         .done(function (result) {
-            updateThreadDiv();
+            getAllThreads();
             console.log(result);
         })
 
@@ -259,19 +259,15 @@ $("#createThreadAndPostForm button").click(function () {
         });
 });
 
-function updateThreadDiv() {
+
+function getAllThreads() {
 
     $.ajax({
         url: '/contents/getAllThreads',
         method: 'GET'
     })
         .done(function (result) {
-
-            var threads = fillTableWithThreads(result);
-            $("#threadDiv tbody").empty();
-            $("#threadDiv tbody").append(threads);
-
-            console.log(result);
+            $('#threadDiv').html(result);
         })
 
         .fail(function (xhr, status, error) {
@@ -281,22 +277,8 @@ function updateThreadDiv() {
 
 }
 
-function fillTableWithThreads(result) {
 
-    var html = "";
 
-    $.each(result, function (key, thread) {
-        html += '<tr>';
-        html += '<td style="border: 1px solid black;">' + '<a href="#threadDataDiv" class="threadLink" thread-id="' + thread.id + '">' + thread.title + '</a>' + '</td>';
-        html += '<td style="border: 1px solid black;">' + thread.dateOfCreation + '</td>';
-        html += '<td style="border: 1px solid black;">' + thread.amountOfReplies + '</td>';
-        html += '<td style="border: 1px solid black;">' + thread.amountOfViews + '</td>';
-        html += '<td style="border: 1px solid black;"><button id="id_delete_thread_for_' + thread.id + '" class="deleteThreadButton">Radera tråd</button></td>';
-        html += '</tr>';
-    });
-
-    return html;
-}
 
 $(document).on("click", "a.threadLink", function () {
 
@@ -310,11 +292,7 @@ $(document).on("click", "a.threadLink", function () {
         }
     })
         .done(function (result) {
-            var threadId = result.id;
-            buildThreadDataTable(result);
-            fillTableWithThreadPosts(threadId);
-            buildThreadPostForm(result);
-
+            fillTableWithThreadPosts(result.id);
             console.log(result);
         })
 
@@ -324,15 +302,6 @@ $(document).on("click", "a.threadLink", function () {
         });
 
 });
-
-function buildThreadDataTable(result) {
-    emptythreadDataDiv();
-
-    var html = '<a href="/index.html">' + 'Tillbaka' + '</a>' + ' > ' + result.title;
-    html += '<h1>' + result.title + '</h1>';
-
-    $("#threadDataDiv").append(html);
-}
 
 function fillTableWithThreadPosts(id) {
     $("#threadDataDiv tr").empty();
@@ -346,21 +315,8 @@ function fillTableWithThreadPosts(id) {
         }
     })
         .done(function (result) {
-
-            var html = "";
-
-            $.each(result, function (key, post) {
-                html += '<tr id="post_row_for_' + post.id +'">';
-                html += '<td style="border: 1px solid black;">' + post.createdBy + '</td>';
-                html += '<td style="border: 1px solid black;">' + post.dateOfCreation + '</td>';
-                html += '<td style="border: 1px solid black;">' + post.content + '</td>';
-                html += '<td><button id="id_delete_for_'  + post.id +'" class="deletePostButton">Delete</button></td>';
-                html += '<td><button id="id_edit_for_' + post.id + '" class="editPostButton">Edit</button></td>';
-                html += '</tr>';
-            });
-
-            $("#threadDataDiv").append(html);
-
+            $("#threadDataDiv").html(result);
+            buildThreadPostForm();
             console.log(result);
         })
 
@@ -371,11 +327,13 @@ function fillTableWithThreadPosts(id) {
         });
 
 }
-function buildThreadPostForm(result) {
-    //IMPORTANT: put the thread Id in the post-form for the Posts in a Thread
-    var html = '<div id="threadPostForm" thread-id="' + result.id + '">'
+
+function buildThreadPostForm() {
+    var threadId = $(".threadLink").attr("thread-id");
+    alert(threadId);
+    var html = '<div id="threadPostForm" data-id="' + threadId + '">';
     html += '<textarea name="CreatePostContent" placeholder="Skriv ett inlägg..." ></textarea>';
-    html += '<button class="sendThreadForm">Svara</button>';
+    html += '<button class="sendThreadForm">Svara</button></td>';
     html += '</div >';
 
     $("#threadDataDiv").append(html);
@@ -387,14 +345,14 @@ function emptythreadDataDiv() {
 
 $(document).on("click", "button.sendThreadForm", function () {
     //Get the thread.Id from the thread-id attribute inside the post-form
-    var id = $("#threadPostForm").attr('thread-id');
+    var id = $("#threadPostForm").data('id');
 
     $.ajax({
         url: '/contents/threads/' + id + '/posts',
         method: 'POST',
         data: {
             "id": id,
-            "Content" : $('#threadPostForm [name=CreatePostContent]').val()
+            "Content": $("#threadPostForm [name=CreatePostContent]").val()  
         }
     })
         .done(function (result) {
@@ -410,109 +368,80 @@ $(document).on("click", "button.sendThreadForm", function () {
 
 });
 
-$(document).on("click", "button.editPostButton", function () {
-    var idToSplit = $(this).attr('id');
-    var idToSend = idToSplit.split('_');
+$("body").on("click", ".adminthreaddeleteButton", function () {
 
+    let clickedId = $(this).data("id")
+    console.log(clickedId)
     $.ajax({
-        url: '/contents/posts',
-        method: 'GET',
+        url: '/contents/adminthreaddelete',
+        method: 'DELETE',
         data: {
-            "id": idToSend[3]
+            clickedId
         }
+
     })
         .done(function (result) {
-            console.log(result);
-            buildEditPostForm(result);
+            alert(result)
+            console.log(status);
+
         })
 
         .fail(function (xhr, status, error) {
-            alert("fail!");
-        });
 
+            alert(`Fail!`)
+            console.log("Error", xhr, status, error);
+
+        })
 });
 
-function buildEditPostForm(result) {
-    removeAllPostForms();
+$("body").on("click", ".userdeletepost", function () {
 
-    var html = '<div class="editPostForm">';
-    html += '<textarea name="editPostContent">' + result.content + '</textarea>';
-    html += '<button id="id_save_for_' + result.id + '" class="savePostButton">Svara</button>';
-    html += '<button class="cancelEditButton">Avbryt</button>';
-
-    $("#post_row_for_" + result.id).append(html);
-}
-
-function removeAllPostForms() {
-    $("div.editPostForm").remove();
-}
-
-$(document).on("click", "button.cancelEditButton", function () {
-    removeAllPostForms();
-});
-
-$(document).on("click", "button.savePostButton", function () {
-    var idToSplit = $(this).attr('id');
-    var idToSend = idToSplit.split('_');
-
+    let clickedId = $(this).data("id")
+    console.log(clickedId)
     $.ajax({
-        url: '/contents/posts',
+        url: '/contents/deletepost',
+        method: 'DELETE',
+        data: {
+            clickedId
+        }
+
+    })
+        .done(function (result) {
+            alert(result)
+            console.log(status);
+
+        })
+
+        .fail(function (xhr, status, error) {
+
+            alert(`Fail!`)
+            console.log("Error", xhr, status, error);
+
+        })
+});
+
+$("body").on("click", ".usereditpost", function () {
+
+    let clickedId = $(this).data("id")
+    console.log(clickedId)
+    $.ajax({
+        url: '/contents/editpost',
         method: 'PUT',
         data: {
-            "Content" : $("div.editPostForm [name=editPostContent]").val(),
-            "Id": idToSend[3],
-            "ThreadId" : $("#threadPostForm").attr('thread-id')
+            clickedId
         }
+
     })
         .done(function (result) {
-            console.log(result);
-            fillTableWithThreadPosts(result.threadId);
+            alert(result)
+            console.log(status);
+
         })
 
         .fail(function (xhr, status, error) {
-            alert("fail!");
-        });
-});
 
-$(document).on("click", "button.deletePostButton", function () {
-    var idToSplit = $(this).attr('id');
-    var idToSend = idToSplit.split('_');
-    var threadId = $("#threadPostForm").attr('thread-id');
+            alert(`Fail!`)
+            console.log("Error", xhr, status, error);
 
-    $.ajax({
-        url: '/contents/posts',
-        method: 'DELETE',
-        data: {
-            "Id": idToSend[3]
-        }
-    })
-        .done(function (result) {
-            console.log(result);
-            fillTableWithThreadPosts(threadId);
         })
-
-        .fail(function (xhr, status, error) {
-            alert("fail!");
-        });
-});
-
-$(document).on("click", "button.deleteThreadButton", function () {
-    var idToSplit = $(this).attr('id');
-    var idToSend = idToSplit.split('_');
-
-    $.ajax({
-        url: '/contents/threads',
-        method: 'DELETE',
-        data: {
-            "Id": idToSend[4]
-        }
-    })
-        .done(function (result) {
-            console.log(result);
-            updateThreadDiv();
-        })
-
-        .fail(function (xhr, status, error) {
-            alert("fail!");
-        });
 });

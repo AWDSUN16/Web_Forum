@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Web_Forum.Entities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -30,7 +31,7 @@ namespace Web_Forum.Controllers
             if (User.Identity.IsAuthenticated)
             {
                 UserCreatedThread.DateOfCreation = DateTime.Now.ToString();
-
+                UserCreatedThread.ThreadCreatedBy = User.Identity.Name;
                 web_ForumDbContext.Add(UserCreatedThread);
                 await web_ForumDbContext.SaveChangesAsync();
 
@@ -39,7 +40,7 @@ namespace Web_Forum.Controllers
                 UserCreatdedOriginalPost.ThreadId = UserCreatedThread.Id;
 
                 web_ForumDbContext.Add(UserCreatdedOriginalPost);
-                
+
                 await web_ForumDbContext.SaveChangesAsync();
 
                 return Ok(UserCreatedThread);
@@ -63,29 +64,105 @@ namespace Web_Forum.Controllers
         {
             var result = web_ForumDbContext.Posts.Where(p => p.ThreadId == id);
 
+            Thread thread = web_ForumDbContext.Threads.SingleOrDefault(t => t.Id == id);
+            List<string> postlist = new List<string>();
+
+            foreach (Post post in result)
+            {
+                postlist.Add("html += '<tr>'");
+                postlist.Add("html += '<td style='border: 1px solid black; '>" + post.DateOfCreation + "</td>");
+                postlist.Add("html += '<td style='border: 1px solid black; '>" + post.Content + "</td>");
+                postlist.Add("html += '<td style='border: 1px solid black; '>" + post.CreatedBy + "</td>");
+                if (User.Identity.IsAuthenticated && User.HasClaim("role", "administrator"))
+                {
+                    postlist.Add("html += '<td> <button class='userdeletepost' data-id='" + post.Id + "'>Radera</button></td>");
+                    postlist.Add("html += '<td> <button class='usereditpost' data-id='" + post.Id + "'>Redigera</button></td>");
+                }
+                else if (User.Identity.IsAuthenticated && User.Identity.Name == thread.ThreadCreatedBy)
+                {
+                    postlist.Add("html += '<td> <button class='userdeletepost' data-id='" + post.Id + "'>Radera</button></td>");
+                    postlist.Add("html += '<td> <button class='usereditpost' data-id='" + post.Id + "'>Redigera</button></td>");
+                }
+                postlist.Add("html += '</tr>'");
+            }
+
+            return Ok(postlist);
+
+        }
+
+
+
+
+
+        [HttpDelete, Route("/contents/threads/{id}")]
+        public IActionResult DeleteThread(int id)
+        {
+            var threadToDelete = web_ForumDbContext.Threads.SingleOrDefault(t => t.Id == id);
+
+            var result = web_ForumDbContext.Threads.Remove(threadToDelete);
+
             return Ok(result);
         }
-        
-        //[HttpPut, Route("/contents/threads/{id}")]
-        //public IActionResult UpdateThread(Thread ThreadToUpdate)
+
+        [HttpPut, Route("/contents/threads/{id}")]
+        public IActionResult UpdateThread(Thread ThreadToUpdate)
+        {
+            var threadToUpdate = web_ForumDbContext.Threads.SingleOrDefault(t => t.Id == ThreadToUpdate.Id);
+
+            threadToUpdate.Title = threadToUpdate.Title;
+            threadToUpdate.DateOfLastUpdate = DateTime.Now.ToString();
+
+
+            return Ok("");
+        }
+
+        //[HttpGet, Route("/contents/getAllThreads")]
+        //public IActionResult GetAllThreads()
         //{
-        //    var threadToUpdate = web_ForumDbContext.Threads.SingleOrDefault(t => t.Id == ThreadToUpdate.Id);
+        //    List<Thread> result = web_ForumDbContext.Threads.ToList();
 
-        //    threadToUpdate.Title = threadToUpdate.Title;
-        //    threadToUpdate.DateOfLastUpdate = DateTime.Now.ToString();
+        //    result.Sort((a, b) => b.DateOfCreation.CompareTo(a.DateOfCreation));
 
-
-        //    return Ok("");
+        //    return Ok(result);
         //}
 
         [HttpGet, Route("/contents/getAllThreads")]
-        public IActionResult GetAllThreads()
+        public IActionResult ShowThreads()
         {
             List<Thread> result = web_ForumDbContext.Threads.ToList();
 
             result.Sort((a, b) => b.DateOfCreation.CompareTo(a.DateOfCreation));
 
-            return Ok(result);
+            List<string> threadList = new List<string>();
+
+            if (User.Identity.IsAuthenticated && User.HasClaim("role", "administrator"))
+            {
+                for (int i = 0; i < result.Count; i++)
+                {
+                    //threadList.Add("html += '<tr>'");
+                    threadList.Add("html += '<td style='border: 1px solid black;'><a href='#threadDataDiv' class='threadLink' thread-id=" + result[i].Id + ">" + result[i].Title + "</a></td>");
+                    threadList.Add("html += '<td style='border: 1px solid black; '>" + result[i].Title + "</td>");
+                    threadList.Add("html += '<td style='border: 1px solid black; '>" + result[i].DateOfCreation + "</td>");
+                    threadList.Add("html += '<td><button class='adminthreaddeleteButton' data-id='" + result[i].Id + "'>delete</button></td>");
+                    //threadList.Add("html += '</tr>'");
+                }
+                return Ok(threadList);
+            }
+            else
+            {
+                for (int i = 0; i < result.Count; i++)
+                {
+                    //threadList.Add("html += '<tr>'");
+                    threadList.Add("html += '<td style='border: 1px solid black;'><a href='#threadDataDiv' class='threadLink' thread-id=" + result[i].Id + ">" + result[i].Title + "</a></td>");
+                    threadList.Add("html += '<td style='border: 1px solid black; '>" + result[i].Title + "</td>");
+                    threadList.Add("html += '<td style='border: 1px solid black; '>" + result[i].DateOfCreation + "</td>");
+                    //threadList.Add("html += '<tr>'");
+                }
+                return Ok(threadList);
+            }
+
+
+
         }
 
         //[HttpGet, Route("")]
@@ -95,12 +172,13 @@ namespace Web_Forum.Controllers
         {
             if (User.Identity.IsAuthenticated)
             {
-                Post UserCreatedPostToSave = new Post();
-                UserCreatedPostToSave.Content = UserCreatedPostInThread.Content;
-                UserCreatedPostToSave.CreatedBy = User.Identity.Name;
-                UserCreatedPostToSave.DateOfCreation = DateTime.Now.ToString();
-                UserCreatedPostToSave.ThreadId = id;
-
+                Post UserCreatedPostToSave = new Post
+                {
+                    Content = UserCreatedPostInThread.Content,
+                    CreatedBy = User.Identity.Name,
+                    DateOfCreation = DateTime.Now.ToString(),
+                    ThreadId = id
+                };
                 web_ForumDbContext.Add(UserCreatedPostToSave);
                 var result = await web_ForumDbContext.SaveChangesAsync();
 
@@ -115,7 +193,7 @@ namespace Web_Forum.Controllers
         [HttpPut, Route("/contents/posts")]
         async public Task<IActionResult> EditPost(Post UserEditedPost)
         {
-            if(User.Identity.IsAuthenticated)
+            if (User.Identity.IsAuthenticated)
             {
                 Post EditedPostToSaveToDatabase = web_ForumDbContext.Posts.SingleOrDefault(p => p.Id == UserEditedPost.Id);
 
@@ -123,7 +201,7 @@ namespace Web_Forum.Controllers
 
                 var result = await web_ForumDbContext.SaveChangesAsync();
 
-                return Ok(EditedPostToSaveToDatabase);
+                return Ok("succeeded!");
             }
             else
             {
@@ -131,30 +209,12 @@ namespace Web_Forum.Controllers
             }
         }
 
-        [HttpDelete, Route("/contents/posts")]
-        public IActionResult DeletePost(int id)
-        {
-            if (User.Identity.IsAuthenticated)
-            {
-                Post postToDelete = web_ForumDbContext.Posts.Find(id);
-                web_ForumDbContext.Remove(postToDelete);
-
-                var result = web_ForumDbContext.SaveChangesAsync();
-
-                return Ok(result);
-            }
-            else
-            {
-                return BadRequest();
-            }
-        }
-
-        [HttpGet, Route("/contents/posts")]
+        [HttpGet, Route("contents/posts")]
         public IActionResult GetPostById(int id)
         {
             if (User.Identity.IsAuthenticated)
             {
-                Post postToEdit = web_ForumDbContext.Posts.SingleOrDefault( p => p.Id == id);
+                Post postToEdit = web_ForumDbContext.Posts.Find(id);
                 return Ok(postToEdit);
             }
             else
@@ -162,30 +222,47 @@ namespace Web_Forum.Controllers
                 return BadRequest();
             }
         }
-
-        [HttpDelete, Route("/contents/threads")]
-        async public Task<IActionResult> DeleteThreadAndPostsInIt(int id)
+        [Authorize(Policy = "AdminRights")]
+        [HttpDelete, Route("/contents/adminthreaddelete")]
+        public IActionResult AdminThreadDelete(int clickedId)
         {
-            if (User.Identity.IsAuthenticated)
+            string temp = "";
+            foreach (Thread thread in web_ForumDbContext.Threads)
             {
-                Thread threadToDelete = web_ForumDbContext.Threads.SingleOrDefault(t => t.Id == id);
-                var postsToDelete = web_ForumDbContext.Posts.Where(p => p.ThreadId == threadToDelete.Id);
-
-                foreach (Post postToDeleteInThread in postsToDelete)
+                if (thread.Id == clickedId)
                 {
-                    web_ForumDbContext.Remove(postToDeleteInThread);
+                    foreach (Post post in web_ForumDbContext.Posts)
+                    {
+                        if (thread.Id == post.ThreadId)
+                        {
+                            web_ForumDbContext.Remove(post);
+                        }
+                    }
+                    temp = thread.Title;
+                    web_ForumDbContext.Remove(thread);
                 }
 
-                web_ForumDbContext.Threads.Remove(threadToDelete);
-
-                var result = await web_ForumDbContext.SaveChangesAsync();
-
-                return Ok(result);
             }
-            else
-            {
-                return BadRequest();
-            }
+            web_ForumDbContext.SaveChanges();
+
+            return Ok("titel: " + temp + " borttagen");
         }
+
+        [HttpDelete, Route("/contents/deletepost")]
+        public IActionResult DeletePost(int clickedId)
+        {
+            string temp = "";
+            Post post = web_ForumDbContext.Posts.SingleOrDefault(p => p.Id == clickedId);
+
+            temp = post.Id.ToString();
+            web_ForumDbContext.Remove(post);
+
+
+
+            web_ForumDbContext.SaveChanges();
+
+            return Ok("id: " + temp + " borttagen");
+        }
+
     }
 }
